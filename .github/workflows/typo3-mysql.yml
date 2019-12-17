@@ -77,5 +77,6 @@ jobs:
                     typo3DatabaseUsername: root
                     typo3DatabasePassword: password
                     typo3DatabasePort: ${{ job.services.mysql.ports['3306'] }}
-
+            - run: |
+                find . -name "composer.json" -print
 #            - uses: mxschmitt/action-tmate@v1
