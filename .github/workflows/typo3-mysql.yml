@@ -1,0 +1,82 @@
+name: Testing content_defender
+
+on:
+    pull_request:
+        types: [opened, edited]
+jobs:
+
+    running-tests:
+        name: 🏃 tests  with TYPO3 "${{ matrix.typo3-versions }}" and PHP ${{ matrix.php-versions }}
+        runs-on: ubuntu-18.04
+        strategy:
+            fail-fast: false
+            matrix:
+                php-versions: ['7.3']
+                typo3-versions: ['^9.5']
+                exclude:
+                    -   php-versions: '7.1'
+                        typo3-versions: '^9.5'
+                    -   php-versions: '7.0'
+                        typo3-versions: '^9.5'
+        services:
+            mysql:
+                image: mysql:5.7
+                env:
+                    MYSQL_ALLOW_EMPTY_PASSWORD: false
+                    MYSQL_DATABASE: typo3
+                    MYSQL_ROOT_PASSWORD: password
+                ports:
+                    - 3306
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v1
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v1
+                with:
+                    php-version: ${{ matrix.php-versions }}
+                    extensions: fileinfo, filter, gd, hash, intl, json, mbstring, mysqli, openssl, pcre, session, SPL, xml, zip, zlib
+                    coverage: none
+
+            -   name: Get composer cache directory
+                id: composer-cache
+                run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            -   name: Cache composer dependencies
+                uses: actions/cache@v1
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                    restore-keys: ${{ runner.os }}-composer-
+
+            -   name: Install Composer dependencies
+                run: |
+                    composer require nimut/typo3-complete:"${{ matrix.typo3-versions }}" --no-progress --no-suggest --prefer-dist
+                    git checkout composer.json
+
+            -   name: Prepare tests
+                run: |
+                    sudo apt-get update -q
+                    sudo apt-get install --no-install-recommends -y xvfb parallel
+                    mkdir -p .Build/public/typo3conf/ext/
+                    if [ ! -L .Build/public/typo3conf/ext/content_defender ]; then ln -snvf ../../../../. .Build/public/typo3conf/ext/content_defender; fi
+                    echo "::set-env name=TYPO3_PATH_ROOT::$GITHUB_WORKSPACE/.Build/public"
+
+            -   name: Running unit tests
+                run: |
+                    if [ -d "Tests/Unit" ]; then
+                        .Build/bin/phpunit --bootstrap .Build/vendor/nimut/testing-framework/res/Configuration/UnitTestsBootstrap.php --testsuite unit;
+                    fi
+
+            -   name: Running functional tests
+                run: |
+                    if [ -d "Tests/Functional" ]; then
+                        find 'Tests/Functional' -wholename '*Test.php' | parallel --gnu 'echo; echo "Running functional test suite {}"; .Build/bin/phpunit --bootstrap .Build/vendor/nimut/testing-framework/res/Configuration/FunctionalTestsBootstrap.php {}';
+                    fi
+                env:
+                    typo3DatabaseHost: 127.0.0.1
+                    typo3DatabaseName: typo3
+                    typo3DatabaseUsername: root
+                    typo3DatabasePassword: password
+                    typo3DatabasePort: ${{ job.services.mysql.ports['3306'] }}
+            - uses: mxschmitt/action-tmate@v1
