@@ -1,5 +1,6 @@
 # TYPO3 Extension content_defender
 
+
 [![Latest Stable Version](https://img.shields.io/packagist/v/ichhabrecht/content-defender.svg)](https://packagist.org/packages/ichhabrecht/content-defender)
 [![Build Status](https://img.shields.io/travis/IchHabRecht/content_defender/master.svg)](https://travis-ci.org/IchHabRecht/content_defender)
 [![StyleCI](https://styleci.io/repos/90545143/shield?branch=master)](https://styleci.io/repos/90545143)
