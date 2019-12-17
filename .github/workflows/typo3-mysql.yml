@@ -87,4 +87,6 @@ jobs:
                     test: ${{ hashFiles('**/composer.json') }}
             - run: |
                 find . -name "composer.json" -print
+              env:
+                  test: ${{ hashFiles('**/composer.json') }}
 #            - uses: mxschmitt/action-tmate@v1
