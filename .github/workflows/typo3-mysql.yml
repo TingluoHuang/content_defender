@@ -5,7 +5,8 @@ jobs:
 
     running-tests:
         name: 🏃 tests  with TYPO3 "${{ matrix.typo3-versions }}" and PHP ${{ matrix.php-versions }}
-        runs-on: self-hosted
+        #runs-on: self-hosted
+        runs-on: ubuntu-latest
         strategy:
             fail-fast: false
             matrix:
