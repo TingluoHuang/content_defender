@@ -145,7 +145,7 @@ jobs:
                                 }
                                 // test for a cycle
                                 if (traversalChain.some(function (x) { return x == realPath_1; })) {
-                                    console.log('    cycle detected');
+                                    console.log('    cycle detected:' + realPath_1);
                                     return "continue";
                                 }
                                 // update the traversal chain
