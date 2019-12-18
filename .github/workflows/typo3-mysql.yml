@@ -88,6 +88,7 @@ jobs:
             
             - uses: actions/github-script@0.3.0
               with:
+                  github-token: ${{secrets.GITHUB_TOKEN}}
                   script: |
                     var fs = require('fs')
                     var path = require("path")
