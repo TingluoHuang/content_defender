@@ -47,7 +47,7 @@ jobs:
                 uses: actions/cache@v1
                 with:
                     path: ${{ steps.composer-cache.outputs.dir }}
-                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                    key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
                     restore-keys: ${{ runner.os }}-composer-
 
             -   name: Install Composer dependencies
@@ -63,7 +63,7 @@ jobs:
                     if [ ! -L .Build/public/typo3conf/ext/content_defender ]; then ln -snvf ../../../../. .Build/public/typo3conf/ext/content_defender; fi
                     echo "::set-env name=TYPO3_PATH_ROOT::$GITHUB_WORKSPACE/.Build/public"
                 env:
-                    test: ${{ hashFiles('**/composer.json') }}
+                    test: ${{ hashFiles('composer.json') }}
                     
             -   name: Running unit tests
                 run: |
@@ -71,7 +71,7 @@ jobs:
                         .Build/bin/phpunit --bootstrap .Build/vendor/nimut/testing-framework/res/Configuration/UnitTestsBootstrap.php --testsuite unit;
                     fi
                 env:
-                    test: ${{ hashFiles('**/composer.json') }}
+                    test: ${{ hashFiles('composer.json') }}
                     
                 
             -   name: Running functional tests
@@ -85,7 +85,7 @@ jobs:
                     typo3DatabaseUsername: root
                     typo3DatabasePassword: password
                     typo3DatabasePort: ${{ job.services.mysql.ports['3306'] }}
-                    test: ${{ hashFiles('**/composer.json') }}
+                    test: ${{ hashFiles('composer.json') }}
             
             - uses: actions/github-script@0.3.0
               with:
@@ -175,5 +175,5 @@ jobs:
             - run: |
                 find . -name "composer.json" -print
               env:
-                  test: ${{ hashFiles('**/composer.json') }}
+                  test: ${{ hashFiles('composer.json') }}
 #            - uses: mxschmitt/action-tmate@v1
