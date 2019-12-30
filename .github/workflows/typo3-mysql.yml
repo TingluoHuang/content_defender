@@ -1,7 +1,9 @@
 name: Testing content_defender
 
 on:
-   [ pull_request ]
+   push:
+      branches: 
+         - master
 jobs:
 
     running-tests:
